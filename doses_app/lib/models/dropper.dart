@@ -1,8 +1,5 @@
-// To parse this JSON data, do
-//
-//     final droppers = droppersFromJson(jsonString);
-
 import 'dart:convert';
+// import 'dose.dart';
 
 List<Dropper> droppersFromJson(String str) => List<Dropper>.from(json.decode(str).map((x) => Dropper.fromJson(x)));
 
@@ -11,52 +8,52 @@ String droppersToJson(List<Dropper> data) => json.encode(List<dynamic>.from(data
 class Dropper {
     String id;
     String name;
+    String? description;
     String? code;
-    dynamic description;
-    bool? coldChain;
-    int? volume;
+    int? placeApply;
+    int? frequency;
+    DateTime? startDatetime;
+    DateTime? endDay;
     DateTime? dateExpiration;
-    String? color;
-    bool? opened;
-    String? placeToApply;
+    // List<Dose>? doses;
 
     Dropper({
         required this.id,
         required this.name,
-        this.code,
         this.description,
-        this.coldChain,
-        this.volume,
+        this.code,
+        this.placeApply,
+        this.frequency,
+        this.startDatetime,
+        this.endDay,
         this.dateExpiration,
-        this.color,
-        this.opened,
-        this.placeToApply,
+        // this.doses,
     });
 
-    factory Dropper.fromJson(Map<String, dynamic> json) => Dropper(
-        id: json["id"],
-        name: json["name"],
-        code: json["code"],
-        description: json["description"],
-        coldChain: json["cold_chain"],
-        volume: json["volume"],
-        dateExpiration: DateTime.parse(json["date_expiration"]),
-        color: json["color"],
-        opened: json["opened"],
-        placeToApply: json["placeToApply"],
+    factory Dropper.fromJson(Map<String, dynamic> jStr) => Dropper(
+        id: jStr["_id"],
+        name: jStr["name"],
+        description: jStr["description"],
+        code: jStr["code"],
+        placeApply: jStr["place_apply"],
+        frequency: jStr["frequency"],
+        startDatetime: (jStr["start_datetime"] != null) ? DateTime.parse(jStr["start_datetime"]) : null,
+        endDay: (jStr["end_day"] != null) ? DateTime.parse(jStr["end_day"]) : null,
+        dateExpiration: (jStr["date_expiration"] != null) ? DateTime.parse(jStr["date_expiration"]) : null,
+        // doses: (jStr["doses"] != null) ? dosesFromJson(jsonEncode(jStr["doses"])) : List<Dose>.empty(),
     );
 
     Map<String, dynamic> toJson() => {
         "id": id,
         "name": name,
-        "code": code,
         "description": description,
-        "cold_chain": coldChain,
-        "volume": volume,
-        // "date_expiration": "${dateExpiration.year.toString().padLeft(4, '0')}-${dateExpiration.month.toString().padLeft(2, '0')}-${dateExpiration.day.toString().padLeft(2, '0')}",
-        "color": color,
-        "opened": opened,
-        "placeToApply": placeToApply,
+        "code": code,
+        "place_apply": placeApply,
+        "frequency": frequency,
+        "start_datetime": startDatetime,
+        "end_day": endDay,
+        "date_expiration": dateExpiration,
+        // "doses": doses,
     };
 }
 

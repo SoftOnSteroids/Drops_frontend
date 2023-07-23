@@ -1,14 +1,17 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:doses_app/models/dropper.dart';
+import 'package:doses_app/models/dose.dart';
 import 'package:doses_app/models/api_service.dart';
-import 'dart:io' show Platform;
+import 'package:intl/intl.dart';
 
+import '../widgets/indicator_widget.dart';
 
 class DosesHourTimetablePage extends StatefulWidget {
+  final DateTime datetime;
   const DosesHourTimetablePage({
     super.key,
+    required this.datetime,
   });
 
   @override
@@ -17,6 +20,9 @@ class DosesHourTimetablePage extends StatefulWidget {
 
 class _DosesHourTimetablePageState extends State<DosesHourTimetablePage> {
   late List<Dropper>? _droppersModel = [];
+  late List<Dose>? _leftDosesModel = [];
+  late List<Dose>? _rightDosesModel = [];
+
   @override
   void initState() {
     super.initState();
@@ -24,71 +30,146 @@ class _DosesHourTimetablePageState extends State<DosesHourTimetablePage> {
   }
 
   void _getData() async {
-    _droppersModel = (await ApiService().getDroppers())!;
+    _droppersModel = await ApiService().getDroppers();
+    _leftDosesModel =
+        await ApiService().getDoses(placeApply: 1, start: widget.datetime, end: widget.datetime);
+    _rightDosesModel =
+        await ApiService().getDoses(placeApply: 2, start: widget.datetime, end: widget.datetime);
     Future.delayed(const Duration(seconds: 1)).then((value) => setState(() {}));
   }
 
   @override
   Widget build(BuildContext context) {
-
-    // Group droppers by a specific property in a map
-    // var coldChain= groupBy(_droppersModel!, (Dropper dropper) => dropper.coldChain);
-
-    // Choose the right progress indicator according to the platform
-    Widget getIndicatorWidget(TargetPlatform platform) {
-      switch (platform) {
-        case TargetPlatform.iOS:
-        case TargetPlatform.macOS:
-          return const CupertinoActivityIndicator();
-        case TargetPlatform.android:
-        case TargetPlatform.fuchsia:
-        case TargetPlatform.linux:
-        case TargetPlatform.windows:
-        default:
-          return const CircularProgressIndicator();
-      }
-    }
-
     return Scaffold(
-      appBar: AppBar(title: const Text("Doses")),
-      body: _droppersModel == null || _droppersModel!.isEmpty
+      appBar: AppBar(
+          title: Text(
+              "Doses ${DateFormat("yyyy-MM-dd HH:mm").format(widget.datetime)}")),
+      body: (_droppersModel == null || _droppersModel!.isEmpty)
           ? Center(
               child: getIndicatorWidget(defaultTargetPlatform),
             )
-          : ListView.builder(
-              itemCount: _droppersModel!.length,
-              itemBuilder: (context, index) {
-                Text description;
-                if(_droppersModel![index].description != null) {
-                  description = Text(_droppersModel![index].description);
-                }
-                else {
-                  description = const Text("Sin descripción");
-                }
-                return Card(
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Expanded(
+                  flex: 5,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Text(_droppersModel![index].placeToApply != null ? _droppersModel![index].placeToApply! : "Random"),
-                          Text(_droppersModel![index].name),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 20.0,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          // DateTime(_dropperModel![index].dateExpiration),
-                          description,
-                        ],
-                      ),
-                    ],
+                          const Center(child: Text("Ojo Izquierdo")),
+                          ListView.builder(
+                            itemCount: _leftDosesModel!.length,
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              return Card(
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Text(_droppersModel!
+                                            .singleWhere((dropper) =>
+                                                dropper.id ==
+                                                _leftDosesModel![index]
+                                                    .dropperId)
+                                            .name),
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Flexible(
+                                            fit: FlexFit.loose,
+                                            child: Text(
+                                              _droppersModel!
+                                                      .singleWhere((dropper) =>
+                                                          dropper.id ==
+                                                          _leftDosesModel![
+                                                                  index]
+                                                              .dropperId)
+                                                      .description ??
+                                                  "Sin descripción",
+                                              overflow: TextOverflow.fade,
+                                            )),
+                                      ],
+                                    ),
+                                    const SizedBox(
+                                      height: 20.0,
+                                    ),
+                                    Text(
+                                      DateFormat(DateFormat.HOUR24_MINUTE)
+                                          .format(_leftDosesModel![index]
+                                              .applicationDateTime),
+                                      overflow: TextOverflow.fade,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ]),
                   ),
-                );
-              },
+                ),
+                Expanded(
+                  flex: 5,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: Column(children: [
+                      const Center(child: Text("Ojo Derecho")),
+                      ListView.builder(
+                        itemCount: _rightDosesModel!.length,
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          return Card(
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Text(_droppersModel!
+                                        .singleWhere((dropper) =>
+                                            dropper.id ==
+                                            _rightDosesModel![index].dropperId)
+                                        .name),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Text(_droppersModel!
+                                            .singleWhere((dropper) =>
+                                                dropper.id ==
+                                                _rightDosesModel![index]
+                                                    .dropperId)
+                                            .description ??
+                                        "Sin descripción"),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 20.0,
+                                ),
+                                Text(
+                                  DateFormat(DateFormat.HOUR24_MINUTE).format(
+                                      _rightDosesModel![index]
+                                          .applicationDateTime),
+                                  overflow: TextOverflow.fade,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ]),
+                  ),
+                ),
+                // },
+              ],
             ),
     );
   }
