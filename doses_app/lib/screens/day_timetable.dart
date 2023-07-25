@@ -1,3 +1,4 @@
+import 'package:doses_app/screens/droppers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -9,16 +10,16 @@ import '../widgets/indicator_widget.dart';
 import './hour_timetable.dart';
 import '../models/api_service.dart';
 
-class DosesDayCalendarPage extends StatefulWidget {
-  const DosesDayCalendarPage({
+class DayTimetablePage extends StatefulWidget {
+  const DayTimetablePage({
     super.key,
   });
 
   @override
-  State<DosesDayCalendarPage> createState() => _DosesDayCalendarPageState();
+  State<DayTimetablePage> createState() => _DayTimetablePageState();
 }
 
-class _DosesDayCalendarPageState extends State<DosesDayCalendarPage> {
+class _DayTimetablePageState extends State<DayTimetablePage> {
   late ValueNotifier<List<Event>> _allEvents;
   late ValueNotifier<List<Event>> _dayEvents = ValueNotifier([]);
   CalendarFormat _calendarFormat = CalendarFormat.week;
@@ -28,12 +29,13 @@ class _DosesDayCalendarPageState extends State<DosesDayCalendarPage> {
   @override
   void initState() {
     super.initState();
-    allEvents.then((value) {
-      _allEvents = ValueNotifier(value);
+    getAllEvents.then((allEvents) {
+      _allEvents = ValueNotifier(allEvents);
       _selectedDay = _focusedDay;
       _dayEvents = ValueNotifier(_getEventsForDay(_selectedDay!));
-      Future.delayed(const Duration(seconds: 1))
-          .then((value) => setState(() {}));
+      // Future.delayed(const Duration(seconds: 1))
+      //     .then((value) => setState(() {}));
+      setState(() {});
     });
   }
 
@@ -122,7 +124,6 @@ class _DosesDayCalendarPageState extends State<DosesDayCalendarPage> {
                         return ListView.builder(
                           itemCount: events.length,
                           itemBuilder: (context, index) {
-                            // final item = droppers[index];
                             return Container(
                               margin: const EdgeInsets.symmetric(
                                 horizontal: 12.0,
@@ -134,12 +135,10 @@ class _DosesDayCalendarPageState extends State<DosesDayCalendarPage> {
                               ),
                               child: ListTile(
                                 onTap: () {
-                                  // print('${value[index]}');
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          DosesHourTimetablePage(
+                                      builder: (context) => HourTimetablePage(
                                         datetime:
                                             events[index].applicationDateTime,
                                       ),
@@ -158,6 +157,11 @@ class _DosesDayCalendarPageState extends State<DosesDayCalendarPage> {
                 ],
               ),
             ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.push(context,
+            MaterialPageRoute(builder: (context) => DroppersPageWidget())),
+            child: const Icon(Icons.water_drop),
+      ),
     );
   }
 

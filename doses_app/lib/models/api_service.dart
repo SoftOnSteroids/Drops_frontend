@@ -84,11 +84,12 @@ final Future<LinkedHashMap<DateTime, List<Dose>>> dtGroupedDoses =
   )..addAll(dtGroupedDoses);
 });
 
-final Future<List<Event>> allEvents = ApiService().getDoses().then((dbDoses) {
+final Future<List<Event>> getAllEvents = ApiService().getDoses().then((dbDoses) {
   return Event.fromListDoses(dbDoses);
 });
 
 /// Clock
 Stream<DateTime> getTimeStream() {
-  return Stream<DateTime>.periodic(const Duration(seconds: 1), (_) => DateTime.now());
+  return Stream<DateTime>.periodic(
+      const Duration(seconds: 1), (_) => DateTime.now());
 }

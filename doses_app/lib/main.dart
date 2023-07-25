@@ -21,7 +21,7 @@ class MainApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         ),
-        home: const DosesDayCalendarPage(),
+        home: const DayTimetablePage(),
         debugShowCheckedModeBanner: false,
       ),
     );

@@ -7,18 +7,18 @@ import 'package:intl/intl.dart';
 
 import '../widgets/indicator_widget.dart';
 
-class DosesHourTimetablePage extends StatefulWidget {
+class HourTimetablePage extends StatefulWidget {
   final DateTime datetime;
-  const DosesHourTimetablePage({
+  const HourTimetablePage({
     super.key,
     required this.datetime,
   });
 
   @override
-  State<DosesHourTimetablePage> createState() => _DosesHourTimetablePageState();
+  State<HourTimetablePage> createState() => _HourTimetablePageState();
 }
 
-class _DosesHourTimetablePageState extends State<DosesHourTimetablePage> {
+class _HourTimetablePageState extends State<HourTimetablePage> {
   late List<Dropper>? _droppersModel = [];
   late List<Dose>? _leftDosesModel = [];
   late List<Dose>? _rightDosesModel = [];
@@ -35,7 +35,8 @@ class _DosesHourTimetablePageState extends State<DosesHourTimetablePage> {
         await ApiService().getDoses(placeApply: 1, start: widget.datetime, end: widget.datetime);
     _rightDosesModel =
         await ApiService().getDoses(placeApply: 2, start: widget.datetime, end: widget.datetime);
-    Future.delayed(const Duration(seconds: 1)).then((value) => setState(() {}));
+    // Future.delayed(const Duration(seconds: 1)).then((value) => setState(() {}));
+    setState(() { });
   }
 
   @override
