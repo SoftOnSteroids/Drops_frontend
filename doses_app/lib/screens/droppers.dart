@@ -1,8 +1,10 @@
+import 'package:doses_app/models/api_constants.dart';
 import 'package:doses_app/models/api_service.dart';
 import 'package:doses_app/models/dropper.dart';
 import 'package:doses_app/widgets/indicator_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class DroppersPageWidget extends StatefulWidget {
   const DroppersPageWidget({super.key});
@@ -47,9 +49,10 @@ class _DroppersPageWidgetState extends State<DroppersPageWidget> {
                 ),
               ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => {
-            // ShowDialogDoses(context),
-          },
+          onPressed: () => showDialog<String>(
+            context: context,
+            builder: (BuildContext context) => const FormDosesDialog(),
+          ),
           backgroundColor: Colors.green[100],
           child: const Icon(Icons.add),
         ));
@@ -64,7 +67,7 @@ class DropperCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 1,
+      // elevation: 1,
       shape: RoundedRectangleBorder(
         side: BorderSide(
           color: Theme.of(context).colorScheme.outline,
@@ -73,6 +76,7 @@ class DropperCard extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
             leading: const Icon(Icons.water_drop),
@@ -82,20 +86,42 @@ class DropperCard extends StatelessWidget {
               style: TextStyle(color: Colors.black.withOpacity(0.6)),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-              style: TextStyle(color: Colors.black.withOpacity(0.6)),
-            ),
+          Text(
+            "Pharmacy code: ${dropper.code ?? ""}",
+            style: TextStyle(color: Colors.black.withOpacity(0.6)),
+          ),
+          Text(
+            "Place to apply: ${dropper.placeApply}",
+            style: TextStyle(color: Colors.black.withOpacity(0.6)),
+          ),
+          Text(
+            "Frequency: ${dropper.frequency}",
+            style: TextStyle(color: Colors.black.withOpacity(0.6)),
+          ),
+          Text(
+            "Start Date Time: ${(dropper.startDatetime != null) ? DateFormat("yyyy-MM-dd HH:mm").format(dropper.startDatetime!) : ""}",
+            style: TextStyle(color: Colors.black.withOpacity(0.6)),
+          ),
+          Text(
+            "End Day: ${(dropper.endDay != null) ? DateFormat("yyyy-MM-dd").format(dropper.endDay!) : ""}",
+            style: TextStyle(color: Colors.black.withOpacity(0.6)),
+          ),
+          Text(
+            "Expiration Day: ${(dropper.dateExpiration != null) ? DateFormat("yyyy-MM-dd").format(dropper.dateExpiration!) : ""}",
+            style: TextStyle(color: Colors.black.withOpacity(0.6)),
           ),
           ButtonBar(
             alignment: MainAxisAlignment.spaceAround,
             children: [
               ElevatedButton(
                 onPressed: () {
-                  // showDialog(context: context, builder: (context) => Dialog( child: FormDoses()),);
-                  ShowDialogDoses(context);
+                  // ShowDialogDoses(context);
+                  showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) => FormDosesDialog(
+                      dropper: dropper,
+                    ),
+                  );
                 },
                 child: const Text('Edit',
                     style: TextStyle(color: Color(0xFF6200EE))),
@@ -119,40 +145,6 @@ class DropperCard extends StatelessWidget {
           // Image.asset('assets/card-sample-image.jpg'),
           // Image.asset('assets/card-sample-image-2.jpg'),
         ],
-      ),
-    );
-  }
-
-  void ShowDialogDoses(BuildContext context) {
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => Dialog.fullscreen(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Positioned(
-              right: 0.0,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Align(
-                  alignment: Alignment.topRight,
-                  child: CircleAvatar(
-                    radius: 14.0,
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.close, color: Colors.red),
-                  ),
-                ),
-              ),
-            ),
-            Text("Edit Dropper: ${dropper.name}"),
-            FormDoses(
-              dropper: dropper,
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -202,57 +194,279 @@ class DeleteAlertDialog extends StatelessWidget {
   }
 }
 
-class FormDoses extends StatefulWidget {
+class FormDosesDialog extends StatefulWidget {
   final Dropper? dropper;
-  const FormDoses({super.key, this.dropper});
+  const FormDosesDialog({super.key, this.dropper});
 
   @override
-  State<FormDoses> createState() => _FormDosesState();
+  State<FormDosesDialog> createState() => _FormDosesDialogState();
 }
 
-class _FormDosesState extends State<FormDoses> {
+class _FormDosesDialogState extends State<FormDosesDialog> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _codeController = TextEditingController();
+  final _placeApplyController = TextEditingController();
+  final _frequencyController = TextEditingController();
+  final _startDatetimeController = TextEditingController();
+  final _endDayController = TextEditingController();
+  final _dateExpirationController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-        key: _formKey,
+    if (widget.dropper != null) {
+      _nameController.text = widget.dropper!.name;
+      _descriptionController.text = widget.dropper?.description ?? "";
+      _codeController.text = widget.dropper?.code ?? "";
+      _placeApplyController.text = widget.dropper?.placeApply.toString() ?? "";
+      _frequencyController.text = widget.dropper?.frequency.toString() ?? "";
+      _startDatetimeController.text = (widget.dropper?.startDatetime != null)
+          ? DateFormat("yyyy-MM-dd HH:mm")
+              .format(widget.dropper!.startDatetime!)
+          : "";
+      _endDayController.text = (widget.dropper?.endDay != null)
+          ? DateFormat("yyyy-MM-dd").format(widget.dropper!.endDay!)
+          : "";
+      _dateExpirationController.text = (widget.dropper?.dateExpiration != null)
+          ? DateFormat("yyyy-MM-dd").format(widget.dropper!.dateExpiration!)
+          : "";
+    }
+    return Dialog(
+      child: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            TextFormField(
-              initialValue: widget.dropper?.name ?? "Write a name",
-              // The validator receives the text that the user has entered.
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter some text';
-                }
-                return null;
-              },
+            // Positioned(
+            //   right: 0.0,
+            //   child: GestureDetector(
+            //     onTap: () {
+            //       Navigator.of(context).pop();
+            //     },
+            //     child: const Align(
+            //       alignment: Alignment.topRight,
+            //       child: CircleAvatar(
+            //         radius: 14.0,
+            //         backgroundColor: Colors.white,
+            //         child: Icon(Icons.close, color: Colors.red),
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: (widget.dropper != null)
+                  ? Text("Modifying ${widget.dropper?.name}")
+                  : const Text("New Dropper"),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    // Validate returns true if the form is valid, or false otherwise.
-                    if (_formKey.currentState!.validate()) {
-                      // If the form is valid, display a snackbar. In the real world,
-                      // you'd often call a server or save the information in a database.
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Saving dropper')),
-                      );
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: const Text('Save'),
-                ),
-                TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel')),
-              ],
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      TextFormField(
+                          controller: _nameController,
+                          keyboardType: TextInputType.name,
+                          decoration: const InputDecoration(
+                            labelText: "Name",
+                            prefixIcon: Icon(Icons.text_fields),
+                          ),
+                          // The validator receives the text that the user has entered.
+                          validator: (value) => (value == null || value.isEmpty)
+                              ? 'Please enter some text'
+                              : null),
+                      TextFormField(
+                        controller: _descriptionController,
+                        keyboardType: TextInputType.text,
+                        decoration: const InputDecoration(
+                          labelText: "Description",
+                          prefixIcon: Icon(Icons.text_fields),
+                        ),
+                      ),
+                      TextFormField(
+                        controller: _codeController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: "Farmacy code",
+                          prefixIcon: Icon(Icons.numbers),
+                        ),
+                      ),
+                      DropdownButtonFormField(
+                        items: [
+                          const DropdownMenuItem(
+                            value: -1,
+                            child: Text("- Select eye -"),
+                          ),
+                          DropdownMenuItem(
+                            value: ApiConstants.leftEye,
+                            child: const Text("Left"),
+                          ),
+                          DropdownMenuItem(
+                            value: ApiConstants.rightEye,
+                            child: const Text("Right"),
+                          ),
+                          DropdownMenuItem(
+                            value: ApiConstants.bothEyes,
+                            child: const Text("Both"),
+                          ),
+                        ],
+                        onChanged: (value) => {},
+                        decoration: const InputDecoration(
+                          labelText: "Place to apply",
+                          prefixIcon: Icon(Icons.remove_red_eye),
+                        ),
+                        value: widget.dropper?.placeApply,
+                      ),
+                      TextFormField(
+                        controller: _frequencyController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: "Frequency in hours",
+                          prefixIcon: Icon(Icons.numbers),
+                        ),
+                      ),
+                      TextFormField(
+                        controller: _startDatetimeController,
+                        keyboardType: TextInputType.datetime,
+                        decoration: const InputDecoration(
+                          labelText: "Start Datetime",
+                          prefixIcon: Icon(Icons.edit_calendar_outlined),
+                        ),
+                        onTap: () async {
+                          DateTime? startDay = await showDatePicker(
+                            context: context,
+                            initialDate: (_startDatetimeController
+                                    .text.isNotEmpty)
+                                ? DateTime.parse(_startDatetimeController.text)
+                                : DateTime.now(),
+                            firstDate: DateTime.now()
+                                .subtract(const Duration(days: 365)),
+                            lastDate: DateTime.now()
+                                .add(const Duration(days: 2 * 365)),
+                          );
+                          TimeOfDay? startTime = await showTimePicker(
+                            context: context,
+                            initialTime:
+                                (_startDatetimeController.text.isNotEmpty)
+                                    ? TimeOfDay.fromDateTime(DateTime.parse(
+                                        _startDatetimeController.text))
+                                    : TimeOfDay(hour: 8, minute: 00),
+                          );
+                          if (startDay != null) {
+                            startDay = (startTime != null)
+                                ? DateTime(
+                                    startDay.year,
+                                    startDay.month,
+                                    startDay.day,
+                                    startTime.hour,
+                                    startTime.minute)
+                                : startDay;
+                            _startDatetimeController.text =
+                                DateFormat("yyyy-MM-dd HH:mm").format(startDay);
+                          }
+                        },
+                      ),
+                      TextFormField(
+                        controller: _endDayController,
+                        keyboardType: TextInputType.datetime,
+                        decoration: const InputDecoration(
+                          labelText: "End Day",
+                          prefixIcon: Icon(Icons.edit_calendar_outlined),
+                        ),
+                        onTap: () async {
+                          DateTime? endDay = await showDatePicker(
+                            context: context,
+                            initialDate: (_endDayController.text.isNotEmpty)
+                                ? DateTime.parse(_endDayController.text)
+                                : DateTime.now(),
+                            firstDate: DateTime.now()
+                                .subtract(const Duration(days: 365)),
+                            lastDate: DateTime.now()
+                                .add(const Duration(days: 2 * 365)),
+                          );
+                          if (endDay != null) {
+                            _endDayController.text =
+                                DateFormat("yyyy-MM-dd").format(endDay);
+                          }
+                        },
+                      ),
+                      TextFormField(
+                        controller: _dateExpirationController,
+                        keyboardType: TextInputType.datetime,
+                        decoration: const InputDecoration(
+                          labelText: "Expiration Date",
+                          prefixIcon: Icon(Icons.edit_calendar_outlined),
+                        ),
+                        onTap: () async {
+                          DateTime? expDay = await showDatePicker(
+                            context: context,
+                            initialDate: (_dateExpirationController
+                                    .text.isNotEmpty)
+                                ? DateTime.parse(_dateExpirationController.text)
+                                : DateTime.now(),
+                            firstDate: DateTime.now()
+                                .subtract(const Duration(days: 365)),
+                            lastDate: DateTime.now()
+                                .add(const Duration(days: 2 * 365)),
+                          );
+                          if (expDay != null) {
+                            _dateExpirationController.text =
+                                DateFormat("yyyy-MM-dd").format(expDay);
+                          }
+                        },
+                      ),
+                      // endDay, dateExpiration,
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              // Validate returns true if the form is valid, or false otherwise.
+                              if (_formKey.currentState!.validate()) {
+                                // If the form is valid, display a snackbar. In the real world,
+                                // you'd often call a server or save the information in a database.
+                                Dropper newDropper = Dropper(
+                                  id: "",
+                                  name: _nameController.text,
+                                  description: _descriptionController.text,
+                                  code: _codeController.text,
+                                  placeApply:
+                                      int.parse(_placeApplyController.text),
+                                  frequency:
+                                      int.parse(_frequencyController.text),
+                                  startDatetime: DateTime.parse(
+                                      _startDatetimeController.text),
+                                  endDay:
+                                      DateTime.parse(_endDayController.text),
+                                  dateExpiration: DateTime.parse(
+                                      _dateExpirationController.text),
+                                );
+                                // ApiService().
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          'Saving dropper ${widget.dropper?.name}')),
+                                );
+                                Navigator.pop(context);
+                              }
+                            },
+                            child: const Text('Save'),
+                          ),
+                          TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Cancel')),
+                        ],
+                      ),
+                    ],
+                  )),
             ),
           ],
-        ));
+        ),
+      ),
+    );
   }
 }

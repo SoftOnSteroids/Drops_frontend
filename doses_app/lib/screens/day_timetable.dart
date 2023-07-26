@@ -159,7 +159,7 @@ class _DayTimetablePageState extends State<DayTimetablePage> {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.push(context,
-            MaterialPageRoute(builder: (context) => DroppersPageWidget())),
+            MaterialPageRoute(builder: (context) => const DroppersPageWidget())),
             child: const Icon(Icons.water_drop),
       ),
     );
