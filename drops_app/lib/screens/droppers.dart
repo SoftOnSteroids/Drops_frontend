@@ -1,9 +1,9 @@
 import 'dart:developer';
 
-import 'package:doses_app/models/api_constants.dart';
-import 'package:doses_app/models/api_service.dart';
-import 'package:doses_app/models/dropper.dart';
-import 'package:doses_app/widgets/indicator_widget.dart';
+import 'package:drops_app/models/api_constants.dart';
+import 'package:drops_app/models/api_service.dart';
+import 'package:drops_app/models/dropper.dart';
+import 'package:drops_app/widgets/indicator_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

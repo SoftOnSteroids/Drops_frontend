@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:doses_app/models/dropper.dart';
-import 'package:doses_app/models/dose.dart';
-import 'package:doses_app/models/api_service.dart';
+import 'package:drops_app/models/dropper.dart';
+import 'package:drops_app/models/dose.dart';
+import 'package:drops_app/models/api_service.dart';
 import 'package:intl/intl.dart';
 
 import '../widgets/indicator_widget.dart';
