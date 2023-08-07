@@ -55,7 +55,7 @@ class _DroppersPageWidgetState extends State<DroppersPageWidget> {
             context: context,
             builder: (BuildContext context) => const FormDosesDialog(),
           ),
-          backgroundColor: Colors.green[100],
+          // backgroundColor: Colors.green[100],
           child: const Icon(Icons.add),
         ));
   }
@@ -78,7 +78,7 @@ class DropperCard extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
-        mainAxisSize:MainAxisSize.min,
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
@@ -86,32 +86,25 @@ class DropperCard extends StatelessWidget {
             title: Text(dropper.name),
             subtitle: Text(
               dropper.description ?? "",
-              style: TextStyle(color: Colors.black.withOpacity(0.6)),
             ),
           ),
           Text(
             "Pharmacy code: ${dropper.code ?? ""}",
-            style: TextStyle(color: Colors.black.withOpacity(0.6)),
           ),
           Text(
             "Place to apply: ${dropper.placeApply}",
-            style: TextStyle(color: Colors.black.withOpacity(0.6)),
           ),
           Text(
             "Frequency: ${dropper.frequency}",
-            style: TextStyle(color: Colors.black.withOpacity(0.6)),
           ),
           Text(
             "Start Date Time: ${(dropper.startDatetime != null) ? DateFormat("yyyy-MM-dd HH:mm").format(dropper.startDatetime!) : ""}",
-            style: TextStyle(color: Colors.black.withOpacity(0.6)),
           ),
           Text(
             "End Day: ${(dropper.endDay != null) ? DateFormat("yyyy-MM-dd").format(dropper.endDay!) : ""}",
-            style: TextStyle(color: Colors.black.withOpacity(0.6)),
           ),
           Text(
             "Expiration Day: ${(dropper.dateExpiration != null) ? DateFormat("yyyy-MM-dd").format(dropper.dateExpiration!) : ""}",
-            style: TextStyle(color: Colors.black.withOpacity(0.6)),
           ),
           ButtonBar(
             alignment: MainAxisAlignment.spaceAround,
@@ -126,8 +119,9 @@ class DropperCard extends StatelessWidget {
                     ),
                   );
                 },
-                child: const Text('Edit',
-                    style: TextStyle(color: Color(0xFF6200EE))),
+                child: const Text(
+                  'Edit',
+                ),
               ),
               TextButton(
                 onPressed: () {
@@ -164,7 +158,6 @@ class DeleteAlertDialog extends StatelessWidget {
     Widget cancelButton = ElevatedButton(
       child: const Text(
         "Cancel",
-        style: TextStyle(color: Colors.blue),
       ),
       onPressed: () {
         Navigator.pop(context);
@@ -176,10 +169,9 @@ class DeleteAlertDialog extends StatelessWidget {
         style: TextStyle(color: Colors.red),
       ),
       onPressed: () {
-        ApiService().deleteDropper(dropper).then(
-            (response) {
-              log("Delete response: ${response.body}");
-            });
+        ApiService().deleteDropper(dropper).then((response) {
+          log("Delete response: ${response.body}");
+        });
         // () async {
         //   var response = await ApiService().deleteDropper(dropper);
         //   log("Delete response body: ${response.toString()}");
